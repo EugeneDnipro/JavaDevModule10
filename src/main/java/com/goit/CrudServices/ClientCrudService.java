@@ -1,73 +1,69 @@
 package com.goit.CrudServices;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
+import com.goit.Entities.Client;
+import com.goit.HibernateUtil;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
+
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 public class ClientCrudService {
 
+    public static long create(String name) {
+        if (name.length() < 2 || name.length() > 1000) {
+            throw new IllegalArgumentException("To short or to long name");
+        }
+        Client clientFound;
+        Client client = new Client();
+        client.setName(name);
 
+        try (Session session = HibernateUtil.getInstance().getSessionFactory().openSession()) {
+            Transaction transaction = session.beginTransaction();
+            session.persist(client);
+            transaction.commit();
+            clientFound = session.createQuery("from Client where name = \"" + name + "\" and id = (select max(id) from Client where name = \"" + name + "\")", Client.class).uniqueResult();
+        }
+        return clientFound.getId();
+    }
 
+    public static String getById(long id) {
+        Client clientFound;
+        try (Session session = HibernateUtil.getInstance().getSessionFactory().openSession()) {
+            clientFound = session.get(Client.class, id);
+        }
+        if (clientFound == null) {
+            throw new IllegalArgumentException("There is no such ID in the table");
+        }
+        return clientFound.getName();
+    }
 
-//    public ClientService(Connection connection) {
-//        try {
-//            createSt = connection.prepareStatement("INSERT INTO client (name) VALUES (?);");
-//            readIdSt = connection.prepareStatement("SELECT MAX(id) FROM client WHERE name = ?;");
-//            readNameSt = connection.prepareStatement("SELECT name FROM client WHERE id = ?;");
-//            setNameSt = connection.prepareStatement("UPDATE client SET name = ? WHERE id = ?;");
-//            delIdSt = connection.prepareStatement("DELETE FROM client WHERE id = ?;");
-//            readAllSt = connection.createStatement();
-//        } catch (SQLException e) {
-//            throw new RuntimeException(e);
-//        }
-//    }
-//
-//    public long create(String name) throws SQLException {
-//        if (name.length() < 2 || name.length() > 1000) {
-//            throw new IllegalArgumentException("To short or to long name");
-//        }
-//        createSt.setString(1, name);
-//        createSt.executeUpdate();
-//        readIdSt.setString(1, name);
-//        ResultSet rs = readIdSt.executeQuery();
-//        if (!rs.next()) {
-//            return Long.parseLong(null);
-//        }
-//        return rs.getLong("MAX(id)");
-//    }
-//
-//    public String getById(long id) throws SQLException {
-//        readNameSt.setLong(1, id);
-//        ResultSet rs = readNameSt.executeQuery();
-//        if (!rs.next()) {
-//            throw new IllegalArgumentException("There is no such ID in the table");
-//        }
-//        return rs.getString("name");
-//    }
-//
-//    public void setName(long id, String name) throws SQLException {
-//        getById(id);
-//        setNameSt.setString(1, name);
-//        setNameSt.setLong(2, id);
-//        setNameSt.addBatch();
-//        setNameSt.executeBatch();
-//    }
-//
-//    public void deleteById(long id) throws SQLException {
-//        getById(id);
-//        delIdSt.setLong(1, id);
-//        delIdSt.executeUpdate();
-//    }
-//
-//    public List<ClientDataDto> listAll() throws SQLException {
-//        List<ClientDataDto> clientLines = new ArrayList<>();
-//        ResultSet rs = readAllSt.executeQuery("SELECT id, name FROM client;");
-//        while (rs.next()) {
-//            clientLines.add(new ClientDataDto(rs.getLong("id"), rs.getString("name")));
-//        }
-//        return clientLines;
-//    }
+    public static void setName(long id, String name) {
+        getById(id);
+        try (Session session = HibernateUtil.getInstance().getSessionFactory().openSession()) {
+            Client client = session.get(Client.class, id);
+            client.setName(name);
+            Transaction transaction = session.beginTransaction();
+            session.merge(client);
+            transaction.commit();
+        }
+    }
 
+    public static void deleteById(long id) {
+        getById(id);
+        try (Session session = HibernateUtil.getInstance().getSessionFactory().openSession()) {
+            Client client = session.get(Client.class, id);
+            Transaction transaction = session.beginTransaction();
+            session.remove(client);
+            transaction.commit();
+        }
+    }
+
+    public static List<Client> listAll() {
+        List<Client> clientLines;
+        try (Session session = HibernateUtil.getInstance().getSessionFactory().openSession()) {
+            clientLines = session.createQuery("from Client", Client.class).list();
+        }
+        return clientLines;
+    }
 }
