@@ -1,6 +1,7 @@
 package com.goit;
 
 import com.goit.CrudServices.ClientCrudService;
+import com.goit.CrudServices.PlanetCrudService;
 import org.flywaydb.core.Flyway;
 
 public class HibernateTests {
@@ -14,5 +15,10 @@ public class HibernateTests {
         ClientCrudService.deleteById(3);
         System.out.println("ClientCrudService.listAll = " + ClientCrudService.listAll());
 
+        System.out.println("PlanetCrudService.create = " + PlanetCrudService.create("KAM", "Kamino"));
+        System.out.println("PlanetCrudService.getById = " + PlanetCrudService.getById("JED"));
+        PlanetCrudService.setName("KRON", "Qo'noS");
+        PlanetCrudService.deleteById("TATOO");
+        System.out.println("PlanetCrudService.listAll = " + PlanetCrudService.listAll());
     }
 }

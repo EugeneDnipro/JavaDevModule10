@@ -18,19 +18,18 @@ dependencies {
 
     compileOnly 'org.projectlombok:lombok:1.18.26'
     annotationProcessor 'org.projectlombok:lombok:1.18.26'
-    runtimeOnly 'com.h2database:h2:2.1.214'
-    // https://mvnrepository.com/artifact/org.hibernate/hibernate-core
-    implementation 'org.hibernate:hibernate-core:6.2.0.Final'
+    implementation 'com.h2database:h2:2.1.214'
     // https://mvnrepository.com/artifact/org.flywaydb/flyway-core
     implementation group: 'org.flywaydb', name: 'flyway-core', version: '9.16.1'
-
-}
-
-test {
-    useJUnitPlatform()
+    // https://mvnrepository.com/artifact/org.hibernate/hibernate-core
+    implementation 'org.hibernate:hibernate-core:6.2.0.Final'
 }
 
 flyway {
     url = 'jdbc:h2:file:./src/main/resources/db'
     user = 'sa'
+}
+
+test {
+    useJUnitPlatform()
 }

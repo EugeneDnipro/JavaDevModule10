@@ -5,15 +5,11 @@ import com.goit.HibernateUtil;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
-import java.sql.SQLException;
 import java.util.List;
 
 public class ClientCrudService {
 
     public static long create(String name) {
-        if (name.length() < 2 || name.length() > 1000) {
-            throw new IllegalArgumentException("To short or to long name");
-        }
         Client clientFound;
         Client client = new Client();
         client.setName(name);
